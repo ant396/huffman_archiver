@@ -2,6 +2,7 @@
 *.out
 test
 test*
-unarch
+new*
 out/
+*.o
 *~
