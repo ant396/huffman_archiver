@@ -2,18 +2,23 @@
 #include <stdlib.h>
 
 extern int leaf_qty;
+extern node *queue[MAXCHARS];
 
 void add_node(char ch, int count, node *a, node *b)
 {
-    node *new_node;
+    node *new_node = {0};
     int n;
 
     if (count) {
-        queue[leaf_qty] = malloc(sizeof(node));
+		node new = {0};
+		queue[leaf_qty] = &new;
+
         queue[leaf_qty]->ch = ch;
         queue[leaf_qty]->count = count;
     } else {
-        new_node = malloc(sizeof(node));
+		node new = {0};
+		queue[leaf_qty] = &new;
+
         new_node->count = a->count + b->count;
         new_node->left = a;
         new_node->right = b;

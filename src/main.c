@@ -6,13 +6,20 @@
 
 
 int stat[MAXCHARS] = {0};
-char *huff_code[MAXCHARS];
+char *huff_code[MAXCHARS] = {0};
+
+
+
+node *queue[MAXCHARS] = {0};
 int leaf_qty = 0;
+
+
+
 
 void take_stat(FILE *ifile)
 {
-	char *buff = calloc(BUFF_SIZE, sizeof(char));
-	int count;
+	char buff[BUFF_SIZE] = {0};
+	size_t count;
 
     while ((count = fread(buff, sizeof(char), BUFF_SIZE, ifile))) {
 		for (int index = 0; index < count; index++) {
@@ -55,7 +62,7 @@ void build_tree(FILE *ifile)
 void huff_coding(node *root, char *code)
 {
     if (root->ch) {
-        huff_code[(int) root->ch] = malloc(sizeof(code));
+        //huff_code[(int) root->ch] = malloc(sizeof(code));
         strcpy(huff_code[(int) root->ch], code);
         return;
     }
@@ -81,47 +88,26 @@ int main(int argc, char **argv)
 
 	if (strcmp(current_session->opt, "-c") == 0) {                  //compress
 		build_tree(current_session->ifile_p);
-		printf("test\n");
 		huff_coding(queue[0], code);
-		for (int k = 0; k < 256; k++) {
-			if (huff_code[k] != NULL) {
-			printf("%c - %s\n", k, huff_code[k]);
-			}
-		}
-		printf("hello\n");
 		check = compress(current_session, stat, huff_code);
 
 		if (check == 0) {
-			close_func(queue[0], current_session, check);
-		} else {
+			/*for (int index = 0; index < MAXCHARS; index++) {
+				free(huff_code[index]);
+				huff_code[index] = NULL;
+			}*/
+
 			close_func(queue[0], current_session, check);
 		}
 	}
-	
-	for (int k = 0; k < MAXCHARS; k++) {
-		if (huff_code[k] != NULL) {
-			printf("%c -- %s\n", k, huff_code[k]);
-		}
-	}
-    char *temp = "new_2.huff";
-
-    decode(temp, queue[0]);
-	for (int index = 0; index < MAXCHARS; index++) {
-		free(huff_code[index]);
-		huff_code[index] = NULL;
-	}
-
-	
-    exit(0);
 }
 
 
 int close_func(node *root, interface *session, int status)
 {
-	dealloc_tree(root);
+	//dealloc_tree(root);
 	fclose(session->ifile_p);
 	fclose(session->ofile_p);
 	free(session);
-	session = NULL;
 	exit(status);
 }

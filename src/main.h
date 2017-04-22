@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #define MAXCHARS 256
-#define BUFF_SIZE 4 //4096
+#define BUFF_SIZE 4096
 
 
 //tree
@@ -16,11 +16,10 @@ typedef struct tree_node {
 	struct tree_node *right;
 } node;
 
-node *queue[MAXCHARS];
 
 void add_node(char, int, node *, node *);
 node *del_node();
-int dealloc_tree(node *);
+//int dealloc_tree(node *);
 
 //standart return value
 enum retrun_opt {
