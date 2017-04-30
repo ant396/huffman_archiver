@@ -19,7 +19,7 @@ tree *build_tree(FILE *ifile)
 	}
 	*new_tree_p = new_tree;
 
-	node **queue = calloc(MAXCAHRS, sizeof(node *));
+	node **queue = calloc(MAXCHARS, sizeof(node *));
 	
 	new_tree_p->stat = take_stat(ifile);
 	if (new_tree_p->stat == NULL) {
@@ -28,7 +28,8 @@ tree *build_tree(FILE *ifile)
 
     for (int index = 0; index < MAXCHARS; index++) {
         if (new_tree_p->stat[index] > 0) {
-            queue[new_tree_p->leaf_qty++] = add_leaf((char) index, stat_table[index]);
+            queue[new_tree_p->leaf_qty++] = add_leaf((char) index,\
+			 new_tree_p->stat[index]);
         }
 	}
 	new_tree_p->root = queue;

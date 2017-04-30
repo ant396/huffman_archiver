@@ -5,7 +5,7 @@
 #define MAXCHARS 256
 #define BUFF_SIZE 4096
 
-typedef struct {
+typedef struct tree_node {
 	char symb;
 	int count;
 	struct tree_node *left;

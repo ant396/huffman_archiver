@@ -1,9 +1,6 @@
-CC=gcc
 CFLAGS=-c -Wall -pedantic -std=c99
-DEBUG=-g
-TMP_DIR=out
-SRCS=encode.c main.c global_opt.c tree.c 
-OBJS=$(SRCS:.c=.o)
+SRCS=$(wildcard *.c)
+OBJS=$(SRCS:%.c=%.o)
 HUFF=huff
 
 .PHONY: all clean
@@ -11,13 +8,13 @@ HUFF=huff
 all: $(HUFF)
 
 $(HUFF): $(OBJS)
-	@$(CC) $(addprefix $(TMP_DIR), $(addprefix /, $^)) -o $@
+	@gcc $^ -o $@
 	@echo "Huffman arch compiled."
 
-%.o: %.c
-	@mkdir $(TMP_DIR)
-	@$(CC) $^ $(CFLAGS) -o $(addprefix $(TMP_DIR), $(addprefix /, $@))
+.o:.c
+	@gcc $^ $(CFLAGS) -o $@
 
 clean:
-	@rm $(HUFF) -r $(TMP_DIR)
+	@rm -r $(TMP_DIR)
+	@rm $(HUFF)
 	@echo "Done."
