@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+#include <getopt.h>
 #include "global_opt.h"
 
 global_opt *parce_args(int arg_count, char **func_arg)
@@ -8,10 +8,13 @@ global_opt *parce_args(int arg_count, char **func_arg)
 	FILE *temp = NULL;
 	int c = 0;
 	char *ifile = func_arg[1];
+	char *ofile = func_arg[3];
+	char opt = *(func_arg[2]+1);
 
 	while ((c = getopt(arg_count, func_arg, "c:e:h")) != -1) {
 		switch(c) {
 			case 'c':
+				c = 'c';
 				break;
 			case 'e':
 				break;
@@ -52,10 +55,10 @@ global_opt *parce_args(int arg_count, char **func_arg)
 	input_opt_p = malloc(sizeof(*input_opt_p));
 	*input_opt_p = input_opt;
 	
-	input_opt_p->opt = c;
+	input_opt_p->opt = opt;
 	input_opt_p->ifile_p = temp;
-	input_opt_p->ifile = func_arg[1];
-	input_opt_p->ofile = func_arg[3];
+	input_opt_p->ifile = ifile;
+	input_opt_p->ofile = ofile;
 
 	return input_opt_p;
 }

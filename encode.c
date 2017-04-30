@@ -5,7 +5,7 @@ int compress(global_opt *session, int *stat, char **code)
 	session->ofile_p = fopen(session->ofile, "wb");
 	int check;
 	
-	fwrite(stat, sizeof(int), MAXCHARS, session->ofile_p);
+	//fwrite(stat, sizeof(int), MAXCHARS, session->ofile_p);
 
 	check = encode(session, code);
 	
@@ -25,27 +25,16 @@ int encode(global_opt *session, char **code)
 	buff.output = calloc(BUFF_SIZE, sizeof(char));
 	buff.bit_count = BITS_LEN;
 
-	//session->ofile_p = fopen(session->ofile, "wb");
 	fseek(session->ifile_p, 0L, SEEK_SET);
 	
 	size_t current_size;
 	while ((current_size = fread(buff.input, sizeof(char), BUFF_SIZE, session->ifile_p))) {
-		for (int l = 0; l < current_size; l++) {
-			printf("%c - %d\n", buff.input[l], l);
-		}
-
 		for ( ; buff.i_count < current_size; buff.i_count++) {
-			//printf("%s\n", code[(int) buff.input[buff.i_count]]);
-			
 			bit_coding(&buff, session, code[(int) buff.input[buff.i_count]]);
 		}
 		buff.i_count = 0;
 	}
 	
-	for (int k = 0; k < buff.o_count; k++) {
-		printf("%c - - %d\n", buff.output[k], k);
-	}
-
 	if (buff.bit_count < BITS_LEN || buff.o_count > 0) {
 		buff.output[buff.o_count++] = buff.bit;
 		fwrite(buff.output, sizeof(char), buff.o_count, session->ofile_p);

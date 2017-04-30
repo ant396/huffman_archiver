@@ -47,6 +47,13 @@ int main(int argc, char **argv)
 	if (current_session->opt == 'c') {
 		new_tree = build_tree(current_session->ifile_p);
 		huff_coding(new_tree->root[0], "", huff_code);
+
+		for (int c = 0; c < MAXCHARS; c++) {
+			if (huff_code[c]) {
+				printf("%c >> %s\n", c, huff_code[c]);
+			}
+		}
+
 		compress(current_session, new_tree->stat, huff_code);
 		close_func(current_session, new_tree, huff_code);
 	}

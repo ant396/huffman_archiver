@@ -166,7 +166,8 @@ int bin_search(tree *tree_t, node *new_node)
 			first = mid + 1;
 		}
 	}
-
+	
+	return last;
 }
 
 

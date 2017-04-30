@@ -15,6 +15,6 @@ $(HUFF): $(OBJS)
 	@gcc $^ $(CFLAGS) -o $@
 
 clean:
-	@rm -r $(TMP_DIR)
+	@rm $(OBJS)
 	@rm $(HUFF)
 	@echo "Done."
