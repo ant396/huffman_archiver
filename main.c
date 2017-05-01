@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <alloca.h>
 #include "tree.h"
 #include "global_opt.h"
 
@@ -19,24 +20,18 @@ void huff_coding(node *root, char *code, char *huff_code[])
 	}
 	
 	if (root->symb) {
-		char *huff_code_p = (char *) malloc(strlen(code));
+		char *huff_code_p = (char *) malloc(strlen(code) * sizeof(char) + 1);
         strcpy(huff_code_p, code);
 		huff_code[(int) root->symb] = huff_code_p;
         return;
     }
-
-	char left[MAXCHARS] = {0};
-	if (code != NULL) {
-		strcpy(left, code);
-	}
-    strcat(left, "0");
+	
+	char *left = (char *) alloca(sizeof(char) * MAXCHARS);
+	stpcpy(stpcpy(left, code), "0");
     huff_coding(root->left, left, huff_code);
-
-    char right[MAXCHARS] = {0};
-	if (code != NULL) {
-		strcpy(right, code);
-	}
-    strcat(right, "1");
+	
+	char *right = (char *) alloca(sizeof(char) * MAXCHARS);
+	stpcpy(stpcpy(right, code), "1");
     huff_coding(root->right, right, huff_code);
 }
 
@@ -45,13 +40,11 @@ int main(int argc, char **argv)
 {
 	tree *new_tree = NULL;
 	char *huff_code[MAXCHARS] = {0};
-	char *code = NULL;
 	global_opt *current_session = parce_args(argc, argv);
 
-	
 	if (current_session->opt == 'c') {
 		new_tree = build_tree(current_session->ifile_p);
-		huff_coding(new_tree->root[0], code, huff_code);
+		huff_coding(new_tree->root[0], "", huff_code);
 		compress(current_session, new_tree->stat, huff_code);
 		close_func(current_session, new_tree, huff_code);
 	}

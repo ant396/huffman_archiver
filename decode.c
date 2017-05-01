@@ -83,8 +83,9 @@ tree *build_tree_arch(FILE *ifile)
 		fprintf(stderr, "Error! Memory not allocated.\n");
 		return NULL;
 	}
-	fread(new_tree_p->stat, sizeof(int), MAXCHARS, ifile);
 
+	fread(new_tree_p->stat, sizeof(int), MAXCHARS, ifile);
+	
 	node **queue = calloc(MAXCHARS, sizeof(node *));
 
     for (int index = 0; index < MAXCHARS; index++) {

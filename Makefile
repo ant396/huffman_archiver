@@ -1,4 +1,4 @@
-CFLAGS=-c -Wall -pedantic -std=c99
+CFLAGS=-c -Wall -pedantic #-std=c99
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:%.c=%.o)
 HUFF=huff

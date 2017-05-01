@@ -35,6 +35,10 @@ int encode(global_opt *session, char **code)
 		buff.i_count = 0;
 	}
 	
+	if (feof(session->ifile_p)) {
+		bit_coding(&buff, session, code[3]);
+	}
+
 	if (buff.bit_count < BITS_LEN || buff.o_count > 0) {
 		buff.output[buff.o_count++] = buff.bit;
 		fwrite(buff.output, sizeof(char), buff.o_count, session->ofile_p);
