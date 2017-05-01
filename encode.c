@@ -5,7 +5,7 @@ int compress(global_opt *session, int *stat, char **code)
 	session->ofile_p = fopen(session->ofile, "wb");
 	int check;
 	
-	//fwrite(stat, sizeof(int), MAXCHARS, session->ofile_p);
+	fwrite(stat, sizeof(int), MAXCHARS, session->ofile_p);
 
 	check = encode(session, code);
 	
@@ -50,7 +50,7 @@ int encode(global_opt *session, char **code)
 int bit_coding(tools *p_buff, global_opt *session, char *code)
 {
 	int index;
-	size_t code_len = strlen(code);
+	int code_len = strlen(code);
 	
 	for (index = 0; index < code_len; index++) {
 		check_buff(p_buff, session);

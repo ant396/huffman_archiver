@@ -1,7 +1,6 @@
 #ifndef TREE
 #define TREE
 
-
 #define MAXCHARS 256
 #define BUFF_SIZE 4096
 

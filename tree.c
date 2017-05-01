@@ -19,14 +19,14 @@ tree *build_tree(FILE *ifile)
 	}
 	*new_tree_p = new_tree;
 
-	node **queue = calloc(MAXCHARS, sizeof(node *));
-	
 	new_tree_p->stat = take_stat(ifile);
 	if (new_tree_p->stat == NULL) {
 		return NULL;
 	}
 
-    for (int index = 0; index < MAXCHARS; index++) {
+	node **queue = calloc(MAXCHARS, sizeof(node *));
+
+	for (int index = 0; index < MAXCHARS; index++) {
         if (new_tree_p->stat[index] > 0) {
             queue[new_tree_p->leaf_qty++] = add_leaf((char) index,\
 			 new_tree_p->stat[index]);

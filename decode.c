@@ -1,37 +1,105 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "main.h"
+#include "global_opt.h"
+#include "tree.h"
+#include "encode.h"
 
-#define FILE_NAME 256
-#define SIZE (int) sizeof(short)*8
 
-void decode(char *arch_name, node *root)
+tree *build_tree_arch(FILE *ifile);
+node *add_leaf(char symb, int count);
+int add_node(tree *huff_tree);
+int comp(const void *a, const void *b);
+int dealloc_tree(node *pointer);
+
+
+int extract(global_opt *session)
 {
-	FILE *arch = fopen(arch_name, "r");
-	FILE *new_file = fopen("extract", "w");
+	session->ofile_p = fopen(session->ofile, "wb");
+	tree *arch_tree = build_tree_arch(session->ifile_p);
+	
+	tools buff = {0};
+	buff.input = calloc(BUFF_SIZE, sizeof(char));
+	buff.output = calloc(BUFF_SIZE, sizeof(char));
+	buff.bit_count = BITS_LEN;
 
-	short *temp = malloc(sizeof(short));
+	node *temp_tree_root = arch_tree->root[0];
 
-	node *tree = root;
+	size_t current_size;
+	while ((current_size = fread(buff.input, sizeof(char), BUFF_SIZE, session->ifile_p))) {
+		for ( ; buff.i_count < current_size; buff.i_count++) {
+			for (int count = buff.bit_count; count > 0; count--) {
+				if (buff.input[buff.i_count] & (1 << (count - 1))) {
+					temp_tree_root = temp_tree_root -> right;
+				} else {
+					temp_tree_root = temp_tree_root->left;
+				}
 
-	while (fread(temp, sizeof(short), 1, arch) > 0) {
-		for (int n = SIZE; n > 0; n--) {
-			if (*temp & (1 << (n-1))) {
-				tree = tree->right;
-			} else {
-				tree = tree->left;
-			}
-			
-			if ((int) tree->ch == 3) {
-				break;
-			}
+				if ((int) temp_tree_root->symb == 3) {
+					break;
+				}
 
-			if (tree->ch) {
-				putc(tree->ch, new_file);
-				tree = root;
+				if (temp_tree_root->symb) {
+					if (buff.o_count == BUFF_SIZE) {
+						fwrite(buff.output, sizeof(char), BUFF_SIZE,\
+						 session->ofile_p);
+						memset(buff.output, 0, BUFF_SIZE);
+						buff.o_count = 0;
+					}
+					buff.output[buff.o_count++] = temp_tree_root->symb;
+					temp_tree_root = arch_tree->root[0];
+				}
 			}
 		}
+		buff.i_count = 0;
 	}
-	free(temp);
-	fclose(arch), fclose(new_file);
+
+	if (buff.o_count > 0) {
+		fwrite(buff.output, sizeof(char), buff.o_count, session->ofile_p);
+	}
+	
+	dealloc_tree(arch_tree->root[0]);
+	free(arch_tree->root);
+	free(arch_tree->stat);
+	free(arch_tree);
+	free(buff.input);
+	free(buff.output);
+	
+	return 0;
+}
+
+
+tree *build_tree_arch(FILE *ifile)
+{
+	tree *new_tree_p, new_tree = {0};
+	new_tree_p = malloc(sizeof(*new_tree_p));
+	if (new_tree_p == NULL) {
+		fprintf(stderr, "Error! Memory not allocated.\n");
+		return NULL;
+	}
+	*new_tree_p = new_tree;
+
+	new_tree_p->stat = calloc(MAXCHARS, sizeof(int));
+	if (new_tree_p->stat == NULL) {
+		fprintf(stderr, "Error! Memory not allocated.\n");
+		return NULL;
+	}
+	fread(new_tree_p->stat, sizeof(int), MAXCHARS, ifile);
+
+	node **queue = calloc(MAXCHARS, sizeof(node *));
+
+    for (int index = 0; index < MAXCHARS; index++) {
+        if (new_tree_p->stat[index] > 0) {
+            queue[new_tree_p->leaf_qty++] = add_leaf((char) index,\
+			 new_tree_p->stat[index]);
+        }
+	}
+	new_tree_p->root = queue;
+
+	qsort(queue, new_tree_p->leaf_qty, sizeof(node*), comp);
+
+	while (new_tree_p->leaf_qty > 1) {
+        add_node(new_tree_p);
+	}
+
+	return new_tree_p;
 }

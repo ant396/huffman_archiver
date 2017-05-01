@@ -14,7 +14,6 @@ global_opt *parce_args(int arg_count, char **func_arg)
 	while ((c = getopt(arg_count, func_arg, "c:e:h")) != -1) {
 		switch(c) {
 			case 'c':
-				c = 'c';
 				break;
 			case 'e':
 				break;
