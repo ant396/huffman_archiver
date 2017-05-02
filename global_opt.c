@@ -7,9 +7,16 @@ global_opt *parce_args(int arg_count, char **func_arg)
 {
 	FILE *temp = NULL;
 	int c = 0;
-	char *ifile = func_arg[1];
-	char *ofile = func_arg[3];
-	char opt = *(func_arg[2]+1);
+	
+	char *ifile;
+	char *ofile;
+	char opt;
+	
+	if (func_arg[2] && func_arg[3]) {
+		ifile = func_arg[1];
+		ofile = func_arg[3];
+		opt = *(func_arg[2]+1);
+	}
 
 	while ((c = getopt(arg_count, func_arg, "c:e:h")) != -1) {
 		switch(c) {
