@@ -1,11 +1,9 @@
 #ifndef ENCODE
 #define ENCODE
 
+#include "global.h"
 #include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "global_opt.h"
-#include "tree.h"
 
 #define BITS_LEN 8
 

@@ -1,14 +1,30 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "tree.h"
+/**
+ * @file	tree
+ * @brief	Build tree
+ *
+ * Include all necessary functions to buld tree
+ * @author	 Anton Svechnikov
+ * @license	 BSD
+ *
+ */
+
+#include "global.h"
 
 int *take_stat(FILE *ifile);
-node *add_leaf(char symb, int count);
-int add_node(tree *huff_tree);
-int comp(const void *a, const void *b);
 int bin_search(tree *tree_t, node *new_node);
 
-
+/**
+ * @brief Build tree
+ *
+ * Take statistics from an input file and build tree fo 
+ * further huffman code
+ *
+ * @param Input file descriptor
+ *
+ * @return Pointet on structer with information about tree and 
+ * its pointer
+ *
+ */
 tree *build_tree(FILE *ifile)
 {
 	tree *new_tree_p, new_tree = {0};
@@ -43,7 +59,16 @@ tree *build_tree(FILE *ifile)
 	return new_tree_p;
 }
 
-
+/**
+ * @brief Take statistics
+ *
+ * Take statistics from an input about about symbols
+ *
+ * @param Input file descriptor
+ *
+ * @return Pointer on array
+ *
+ */
 int *take_stat(FILE *ifile)
 {
 	char buff[BUFF_SIZE] = {0};
@@ -68,7 +93,17 @@ int *take_stat(FILE *ifile)
 	return stat_table;
 }
 
-
+/**
+ * @brief Add leaf to tree
+ *
+ * Add leaf to tree based on took statistics of input file
+ *
+ * @param symb Symbol from input file
+ * @param count Quantity of the mentioned symbol in an input file
+ *
+ * @return Pointet on leaf
+ *
+ */
 node *add_leaf(char symb, int count)
 {
 	if (symb == 0 || count == 0) {
@@ -88,7 +123,16 @@ node *add_leaf(char symb, int count)
 	return new_leaf_p;
 }
 
-
+/**
+ * @brief Add node to tree
+ *
+ * Merge nodes and leaf in one node
+ *
+ * @param Pointer in tree structure
+ *
+ * @return 1 in case of error
+ *
+ */
 int add_node(tree *huff_tree)
 {
 	if (huff_tree == NULL) {
@@ -136,7 +180,18 @@ int add_node(tree *huff_tree)
 	return 0;
 }
 
-
+/**
+ * @brief Comparator for qsort
+ *
+ * Compare nodes by quantity
+ *
+ * @param Pointers on two elements which should be compared
+ * @see qsort
+ * @return Return value < 0 if the first paramets less than the secont or
+ * return value > 0 if the second parameter less than the first or
+ * return = 0 if the both parameters are equal
+ *
+ */
 int comp(const void *a, const void *b)
 {
 	node * const * p = (node * const *) a;
@@ -144,6 +199,17 @@ int comp(const void *a, const void *b)
 	return (*p)->count - (*q)->count;
 }
 
+/**
+ * @brief Binary search
+ *
+ * Binary search for input node into the queue
+ *
+ * @param tree_t Pointer on tree structure
+ * @param new_node Pointer on node which shoud be input in queue
+ *
+ * @return Index where node should be input
+ *
+ */
 int bin_search(tree *tree_t, node *new_node)
 {
 	int first = 0;
@@ -170,7 +236,16 @@ int bin_search(tree *tree_t, node *new_node)
 	return last;
 }
 
-
+/**
+ * @brief Dealloc tree
+ *
+ * Recursively free each node and each leaf.
+ *
+ * @param Pointer on the node of the built tree
+ *
+ * @return 0 if pointer is NULL
+ *
+ */
 int dealloc_tree(node *pointer)
 {
 	if (pointer == NULL) {
@@ -185,6 +260,14 @@ int dealloc_tree(node *pointer)
 	return 0;
 }
 
+/**
+ * @brief Print tree
+ *
+ * Optionally print tree.
+ *
+ * @param Pointer on the node of the built tree
+ *
+ */
 
 void print_tree(node *root_t)
 {
@@ -193,6 +276,6 @@ void print_tree(node *root_t)
 	}
 
 	print_tree(root_t->left);
-	printf("%c - %d\n", root_t->symb, root_t->count);
 	print_tree(root_t->right);
+	printf("%c - %d\n", root_t->symb, root_t->count);
 }

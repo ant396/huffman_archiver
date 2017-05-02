@@ -1,46 +1,37 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <alloca.h>
-#include "tree.h"
+/**
+ * @file	 main.c
+ * @brief	 main file
+ *
+ * Main file for huffman archiver
+ * @author	 Anton Svechnikov
+ * @license	 BSD
+ */
+
+#include "global.h"
 #include "global_opt.h"
 
-
-global_opt *parce_args(int arg_count, char **func_args);
+global_opt *parse_args(int arg_count, char **func_args);
 tree *build_tree(FILE *ifile);
-int compress(global_opt *session, int *stat, char **huff_code);
+int huff_coding(node *root, char *code, char *huff_code[]);
+int compress(global_opt *session, int *stat, char *huff_code[]);
 int extract(global_opt *session);
 int close_func(global_opt *session, tree *huff_tree, char *huff_code[]);
 
-
-void huff_coding(node *root, char *code, char *huff_code[])
-{
-	if (root == NULL) {
-		return;
-	}
-	
-	if (root->symb) {
-		char *huff_code_p = (char *) malloc(strlen(code) * sizeof(char) + 1);
-        strcpy(huff_code_p, code);
-		huff_code[(int) root->symb] = huff_code_p;
-        return;
-    }
-	
-	char *left = (char *) alloca(sizeof(char) * MAXCHARS);
-	stpcpy(stpcpy(left, code), "0");
-    huff_coding(root->left, left, huff_code);
-	
-	char *right = (char *) alloca(sizeof(char) * MAXCHARS);
-	stpcpy(stpcpy(right, code), "1");
-    huff_coding(root->right, right, huff_code);
-}
-
-
+/**
+ * @brief main function
+ * 
+ * Do necessary preparations and compile or extract target file.
+ *
+ * @param argc Quantity of input parameters
+ * @param argv Array of input parameters'
+ *
+ *
+ */
 int main(int argc, char **argv)
 {
 	tree *new_tree = NULL;
 	char *huff_code[MAXCHARS] = {0};
-	global_opt *current_session = parce_args(argc, argv);
+	global_opt *current_session = parse_args(argc, argv);
 
 	if (current_session->opt == 'c') {
 		new_tree = build_tree(current_session->ifile_p);
@@ -51,24 +42,36 @@ int main(int argc, char **argv)
 
 	if (current_session->opt == 'e') {
 		extract(current_session);
-		fclose(current_session->ifile_p);
-		fclose(current_session->ofile_p);
-		free(current_session);
-		exit(0);
+		close_func(current_session, NULL, NULL);
 	}
 }
 
-
+/**
+ * @brief Close files and free memory
+ *
+ * Free huffman tree, free array if huffman codes and close input
+ * and output files
+ *
+ * @param session Pointer to structure with input and output file descriptor
+ * @param huff_tree Pointer to structure with all information about tree and
+ * its pointer
+ * @param huff_code Array of huffman codes
+ *
+ */
 int close_func(global_opt *session, tree *huff_tree, char *huff_code[])
 {
-	dealloc_tree(huff_tree->root[0]);
-	free(huff_tree->root);
-	free(huff_tree->stat);
-	free(huff_tree);
-	
-	for (int index = 0; index < MAXCHARS; index++) {
-		if (huff_code[index]) {
-			free(huff_code[index]);
+	if (huff_tree != NULL) {
+		dealloc_tree(huff_tree->root[0]);
+		free(huff_tree->root);
+		free(huff_tree->stat);
+		free(huff_tree);
+	}
+
+	if (huff_code != NULL) {
+		for (int index = 0; index < MAXCHARS; index++) {
+			if (huff_code[index]) {
+				free(huff_code[index]);
+			}
 		}
 	}
 

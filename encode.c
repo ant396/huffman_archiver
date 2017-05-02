@@ -1,6 +1,29 @@
+/**
+ * @file	Encode
+ * @brief	Compress input file
+ *
+ * Creat archive file and write encode data into it
+ * @author	 Anton Svechnikov
+ * @license	 BSD
+ *
+ */
+
 #include "encode.h"
 
-int compress(global_opt *session, int *stat, char **code)
+/**
+ * @brief Compress function
+ *
+ * Compress function
+ *
+ * @param session Pointer on structer with all input 
+ * options and parameters
+ * @param stat Pointer on statistic array
+ * @param code Pointer on array with huffman codes
+ *
+ * @return 1 in case of error
+ *
+ */
+int compress(global_opt *session, int *stat, char *code[])
 {
 	session->ofile_p = fopen(session->ofile, "wb");
 	int check;
@@ -16,7 +39,16 @@ int compress(global_opt *session, int *stat, char **code)
 	}
 }
 
-
+/**
+ * @brief Encode input data
+ *
+ * Encode data form input file
+ *
+ * @param session Pointer on structer with all input 
+ * options and parameters
+ * @param code Pointer on array with huffman codes
+ *
+ */
 int encode(global_opt *session, char **code)
 {
 	tools buff = {0};
@@ -50,7 +82,18 @@ int encode(global_opt *session, char **code)
 	return 0;
 }
 
-
+/**
+ * @brief Code bits
+ *
+ * Code bits for further encoding
+ *
+ * @param p_buff Pointer in structer with information about 
+ * input and output buffers
+ * @param session Pointer on structer with all input 
+ * options and parameters
+ * @param code Pointer on array with huffman codes
+ *
+ */
 int bit_coding(tools *p_buff, global_opt *session, char *code)
 {
 	int index;
@@ -67,7 +110,19 @@ int bit_coding(tools *p_buff, global_opt *session, char *code)
 	return 0;
 }
 
-
+/**
+ * @brief Check buffers
+ *
+ * Check, write and clean output buffer and raw bit
+ *
+ * @param p_buff Pointer in structer with information about 
+ * input and output buffers
+ * @param session Pointer on structer with all input 
+ * options and parameters
+ *
+ * @return 1 in case of error
+ *
+ */
 int check_buff(tools *buff, global_opt *session)
 {
 	//check, write and cleam output buffer

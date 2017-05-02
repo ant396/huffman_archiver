@@ -17,6 +17,9 @@ typedef struct {
 	int *stat;
 } tree;
 
+node *add_leaf(char symb, int count);
+int add_node(tree *huff_tree);
+int comp(const void *a, const void *b);
 int dealloc_tree(node *pointer);
 
 #endif //TREE

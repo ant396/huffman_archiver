@@ -1,17 +1,26 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "global_opt.h"
-#include "tree.h"
+/**
+ * @file	decode
+ * @brief	Decode archive
+ *
+ * Decode input archive.
+ * @author	 Anton Svechnikov
+ * @license	 BSD
+ *
+ */
+
 #include "encode.h"
 
-
 tree *build_tree_arch(FILE *ifile);
-node *add_leaf(char symb, int count);
-int add_node(tree *huff_tree);
-int comp(const void *a, const void *b);
-int dealloc_tree(node *pointer);
 
-
+/**
+ * @brief Extract data from input file
+ *
+ * Decode information from input archive
+ *
+ * @param Pointer on structer with all input 
+ * options and parameters
+ *
+ */
 int extract(global_opt *session)
 {
 	session->ofile_p = fopen(session->ofile, "wb");
@@ -67,7 +76,17 @@ int extract(global_opt *session)
 	return 0;
 }
 
-
+/**
+ * @brief Build tree
+ *
+ * Build tree based on input archive data
+ *
+ * @param Pointer file descriptor
+ *
+ * @return Pointer on structer with information 
+ * about built tree
+ *
+ */
 tree *build_tree_arch(FILE *ifile)
 {
 	tree *new_tree_p, new_tree = {0};
@@ -85,7 +104,7 @@ tree *build_tree_arch(FILE *ifile)
 	}
 
 	fread(new_tree_p->stat, sizeof(int), MAXCHARS, ifile);
-	
+
 	node **queue = calloc(MAXCHARS, sizeof(node *));
 
     for (int index = 0; index < MAXCHARS; index++) {

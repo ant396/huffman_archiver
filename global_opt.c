@@ -1,9 +1,30 @@
-#include <stdlib.h>
-#include <stdio.h>
+/**
+ * @file	global_opt
+ * @brief	Parse options
+ *
+ * Parse input options
+ * @author	 Anton Svechnikov
+ * @license	 BSD
+ *
+ */
+
+#include "global.h"
 #include <getopt.h>
 #include "global_opt.h"
 
-global_opt *parce_args(int arg_count, char **func_arg)
+/**
+ * @brief Parse options
+ *
+ * Parse and validate input options and return structure with it
+ *
+ * @param arg_count Parameter argc from main function
+ * @param func_arg Parameter argv from main function
+ *
+ * @see Main function
+ * @return Pointet on structer with all input options
+ *
+ */
+global_opt *parse_args(int arg_count, char **func_arg)
 {
 	FILE *temp = NULL;
 	int c = 0;
@@ -59,6 +80,10 @@ global_opt *parce_args(int arg_count, char **func_arg)
 
 	global_opt *input_opt_p, input_opt = {0};
 	input_opt_p = malloc(sizeof(*input_opt_p));
+	if (input_opt_p == NULL) {
+		fprintf(stderr, "Error! Memory not allocated.\n");
+		exit(1);
+	}
 	*input_opt_p = input_opt;
 	
 	input_opt_p->opt = opt;
