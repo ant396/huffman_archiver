@@ -23,12 +23,12 @@
  * @return 1 in case of error
  *
  */
-int compress(global_opt *session, int *stat, char *code[])
+int compress(global_opt *session, unsigned long *stat, char *code[])
 {
 	session->ofile_p = fopen(session->ofile, "wb");
 	int check;
 	
-	fwrite(stat, sizeof(int), MAXCHARS, session->ofile_p);
+	fwrite(stat, sizeof(unsigned long), MAXCHARS, session->ofile_p);
 
 	check = encode(session, code);
 	
@@ -53,24 +53,20 @@ int encode(global_opt *session, char **code)
 {
 	tools buff = {0};
 
-	buff.input = calloc(BUFF_SIZE, sizeof(char));
+	buff.input = calloc(BUFF_SIZE, sizeof(unsigned char));
 	buff.output = calloc(BUFF_SIZE, sizeof(char));
 	buff.bit_count = BITS_LEN;
 
 	fseek(session->ifile_p, 0L, SEEK_SET);
 	
 	size_t current_size;
-	while ((current_size = fread(buff.input, sizeof(char), BUFF_SIZE, session->ifile_p))) {
+	while ((current_size = fread(buff.input, sizeof(unsigned char), BUFF_SIZE, session->ifile_p))) {
 		for ( ; buff.i_count < current_size; buff.i_count++) {
-			bit_coding(&buff, session, code[(int) buff.input[buff.i_count]]);
+			bit_coding(&buff, session, code[(unsigned char ) buff.input[buff.i_count]]);
 		}
 		buff.i_count = 0;
 	}
 	
-	if (feof(session->ifile_p)) {
-		bit_coding(&buff, session, code[3]);
-	}
-
 	if (buff.bit_count < BITS_LEN || buff.o_count > 0) {
 		buff.output[buff.o_count++] = buff.bit;
 		fwrite(buff.output, sizeof(char), buff.o_count, session->ofile_p);
@@ -97,7 +93,7 @@ int encode(global_opt *session, char **code)
 int bit_coding(tools *p_buff, global_opt *session, char *code)
 {
 	int index;
-	int code_len = strlen(code);
+	size_t code_len = strlen(code);
 	
 	for (index = 0; index < code_len; index++) {
 		check_buff(p_buff, session);

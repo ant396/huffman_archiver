@@ -29,8 +29,7 @@ $(OBJS):$(SRCS)
 
 install:
 	install $(HUFF) $(DESTDIR)$(bindir)/huff
-	@rm $(OBJS)
-	@rm $(HUFF)
+	$(clean)
 
 uninstall:
 	rm $(DESTDIR)$(bindir)/huff

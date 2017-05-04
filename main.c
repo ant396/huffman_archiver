@@ -9,13 +9,13 @@
 
 #include "global.h"
 #include "global_opt.h"
-
-global_opt *parse_args(int arg_count, char **func_args);
-tree *build_tree(FILE *ifile);
-int huff_coding(node *root, char *code, char *huff_code[]);
-int compress(global_opt *session, int *stat, char *huff_code[]);
-int extract(global_opt *session);
-int close_func(global_opt *session, tree *huff_tree, char *huff_code[]);
+#include <time.h>
+global_opt *parse_args(int, char **);
+tree *build_tree(FILE *);
+int huff_coding(node *, char *, char **);
+int compress(global_opt *, unsigned long *, char **);
+int extract(global_opt *);
+int close_func(global_opt *, tree *, char **);
 
 /**
  * @brief main function
@@ -27,8 +27,9 @@ int close_func(global_opt *session, tree *huff_tree, char *huff_code[]);
  *
  *
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
+	clock_t start = clock();
 	tree *new_tree = NULL;
 	char *huff_code[MAXCHARS] = {0};
 	global_opt *current_session = parse_args(argc, argv);
@@ -37,11 +38,17 @@ int main(int argc, char **argv)
 		new_tree = build_tree(current_session->ifile_p);
 		huff_coding(new_tree->root[0], "", huff_code);
 		compress(current_session, new_tree->stat, huff_code);
+		clock_t finish = clock();
+		double time = (double) (finish - start) / CLOCKS_PER_SEC;
+		printf("%f sec\n", time);
 		close_func(current_session, new_tree, huff_code);
 	}
 
-	if (current_session->opt == 'e') {
+	if (current_session->opt == 'x') {
 		extract(current_session);
+		clock_t finish = clock();
+		double time = (double) (finish - start) / CLOCKS_PER_SEC;
+		printf("%f sec\n", time);
 		close_func(current_session, NULL, NULL);
 	}
 }

@@ -10,7 +10,7 @@
 
 #include "encode.h"
 
-tree *build_tree_arch(FILE *ifile);
+tree *build_tree_arch(FILE *);
 
 /**
  * @brief Extract data from input file
@@ -27,8 +27,8 @@ int extract(global_opt *session)
 	tree *arch_tree = build_tree_arch(session->ifile_p);
 	
 	tools buff = {0};
-	buff.input = calloc(BUFF_SIZE, sizeof(char));
-	buff.output = calloc(BUFF_SIZE, sizeof(char));
+	buff.input = calloc(BUFF_SIZE, sizeof(unsigned char));
+	buff.output = calloc(BUFF_SIZE, sizeof(unsigned char));
 	buff.bit_count = BITS_LEN;
 
 	node *temp_tree_root = arch_tree->root[0];
@@ -43,13 +43,9 @@ int extract(global_opt *session)
 					temp_tree_root = temp_tree_root->left;
 				}
 
-				if ((int) temp_tree_root->symb == 3) {
-					break;
-				}
-
-				if (temp_tree_root->symb) {
+				if (temp_tree_root->left == NULL && temp_tree_root->right == NULL) {
 					if (buff.o_count == BUFF_SIZE) {
-						fwrite(buff.output, sizeof(char), BUFF_SIZE,\
+						fwrite(buff.output, sizeof(unsigned char), BUFF_SIZE,\
 						 session->ofile_p);
 						memset(buff.output, 0, BUFF_SIZE);
 						buff.o_count = 0;
@@ -63,7 +59,7 @@ int extract(global_opt *session)
 	}
 
 	if (buff.o_count > 0) {
-		fwrite(buff.output, sizeof(char), buff.o_count, session->ofile_p);
+		fwrite(buff.output, sizeof(unsigned char), buff.o_count, session->ofile_p);
 	}
 	
 	dealloc_tree(arch_tree->root[0]);
@@ -97,25 +93,26 @@ tree *build_tree_arch(FILE *ifile)
 	}
 	*new_tree_p = new_tree;
 
-	new_tree_p->stat = calloc(MAXCHARS, sizeof(int));
+	new_tree_p->stat = calloc(MAXCHARS, sizeof(unsigned long));
 	if (new_tree_p->stat == NULL) {
 		fprintf(stderr, "Error! Memory not allocated.\n");
 		return NULL;
 	}
-
-	fread(new_tree_p->stat, sizeof(int), MAXCHARS, ifile);
+	
+	//Read statistics from archive
+	fread(new_tree_p->stat, sizeof(unsigned long), MAXCHARS, ifile);
 
 	node **queue = calloc(MAXCHARS, sizeof(node *));
 
     for (int index = 0; index < MAXCHARS; index++) {
         if (new_tree_p->stat[index] > 0) {
-            queue[new_tree_p->leaf_qty++] = add_leaf((char) index,\
+            queue[new_tree_p->leaf_qty++] = add_leaf(index,\
 			 new_tree_p->stat[index]);
         }
 	}
 	new_tree_p->root = queue;
 
-	qsort(queue, new_tree_p->leaf_qty, sizeof(node*), comp);
+	qsort(queue, new_tree_p->leaf_qty, sizeof(node *), comp);
 
 	while (new_tree_p->leaf_qty > 1) {
         add_node(new_tree_p);

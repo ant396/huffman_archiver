@@ -38,15 +38,15 @@ global_opt *parse_args(int arg_count, char **func_arg)
 		ofile = func_arg[3];
 		opt = *(func_arg[2]+1);
 	}
-
-	while ((c = getopt(arg_count, func_arg, "c:e:h")) != -1) {
+	
+	while ((c = getopt(arg_count, func_arg, "c:x:h")) != -1) {
 		switch(c) {
 			case 'c':
 				break;
-			case 'e':
+			case 'x':
 				break;
 			case 'h':
-				printf("Usage: ifile [-Compress / -Extract] ofile.\n");
+				printf("Usage: ifile [-Compress / -eXtract] ofile.\n");
 				exit(0);
 			case '?':
 			default:
@@ -61,7 +61,7 @@ global_opt *parse_args(int arg_count, char **func_arg)
 	}
 
 	if (fseek(temp, 0L, SEEK_END) == 0) {
-		long check_size = ftell(temp);
+		unsigned long check_size = ftell(temp);
 		if (check_size == 0) {
 			fprintf(stderr, "%s: input file is empty.\n", func_arg[0]);
 			exit(1);
@@ -74,7 +74,7 @@ global_opt *parse_args(int arg_count, char **func_arg)
 	}
 
 	if (arg_count != 4) {
-		printf("Usage: ifile [-Compress / -Extract] ofile.\n");
+		printf("Usage: ifile [-Compress / -eXtract] ofile.\n");
 		exit(0);
 	}
 

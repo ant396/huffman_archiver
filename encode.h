@@ -11,9 +11,9 @@ typedef struct buff_tools {
 	unsigned char bit;
 	char *input;
 	char *output;
-	unsigned int bit_count;
-	unsigned int i_count;
-	unsigned int o_count;
+	int bit_count;
+	int i_count;
+	int o_count;
 } tools;
 
 int encode(global_opt *, char **);

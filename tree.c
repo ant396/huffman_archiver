@@ -10,8 +10,8 @@
 
 #include "global.h"
 
-int *take_stat(FILE *ifile);
-int bin_search(tree *tree_t, node *new_node);
+unsigned long *take_stat(FILE *);
+int bin_search(tree *, node *);
 
 /**
  * @brief Build tree
@@ -44,13 +44,13 @@ tree *build_tree(FILE *ifile)
 
 	for (int index = 0; index < MAXCHARS; index++) {
         if (new_tree_p->stat[index] > 0) {
-            queue[new_tree_p->leaf_qty++] = add_leaf((char) index,\
-			 new_tree_p->stat[index]);
+            queue[new_tree_p->leaf_qty++] = add_leaf((unsigned char) index,\
+			new_tree_p->stat[index]);
         }
 	}
 	new_tree_p->root = queue;
 
-	qsort(queue, new_tree_p->leaf_qty, sizeof(node*), comp);
+	qsort(new_tree_p->root, new_tree_p->leaf_qty, sizeof(node *), comp);
 
 	while (new_tree_p->leaf_qty > 1) {
         add_node(new_tree_p);
@@ -69,25 +69,21 @@ tree *build_tree(FILE *ifile)
  * @return Pointer on array
  *
  */
-int *take_stat(FILE *ifile)
+unsigned long *take_stat(FILE *ifile)
 {
-	char buff[BUFF_SIZE] = {0};
+	unsigned char buff[BUFF_SIZE] = {0};
 	size_t count = 0;
-	int *stat_table = (int *) calloc(MAXCHARS, sizeof(int));
+	unsigned long *stat_table = (unsigned long *) calloc(MAXCHARS, sizeof(unsigned long));
 	
 	if (stat_table == NULL) {
 		fprintf(stderr, "Error! Memory not allocated.\n");
 		return NULL;
 	}
 
-    while ((count = fread(buff, sizeof(char), BUFF_SIZE, ifile)) != 0) {
+    while ((count = fread(buff, sizeof(unsigned char), BUFF_SIZE, ifile)) != 0) {
 		for (int index = 0; index < count; index++) {
 			++stat_table[(int) *(buff+index)];
 		}
-	}
-
-	if (feof(ifile)) {
-		++stat_table[3];
 	}
 
 	return stat_table;
@@ -104,12 +100,8 @@ int *take_stat(FILE *ifile)
  * @return Pointet on leaf
  *
  */
-node *add_leaf(char symb, int count)
+node *add_leaf(unsigned char symb, unsigned long count)
 {
-	if (symb == 0 || count == 0) {
-		return NULL;
-	}
-
 	node *new_leaf_p, new_leaf = {0};
 	new_leaf_p = malloc(sizeof(*new_leaf_p));
 	if (new_leaf_p == NULL) {
@@ -138,18 +130,14 @@ int add_node(tree *huff_tree)
 	if (huff_tree == NULL) {
 		return 1;
 	}
-
-	node *first = huff_tree->root[0];
-	node *second = huff_tree->root[1];
 	
-	//Deleting from the queue the first and the second pointers
-	for (int index = 2; index < (huff_tree->leaf_qty); index++) {
-		huff_tree->root[index-2] = huff_tree->root[index];
+	if (huff_tree->root[0] == NULL || huff_tree->root[1] == NULL) {
+		return 1;
 	}
-	huff_tree->root[huff_tree->leaf_qty-2] = NULL;
-	huff_tree->root[huff_tree->leaf_qty-1] = NULL;
-	huff_tree->leaf_qty -= 2;
 
+	node *first_el = huff_tree->root[0];
+	node *second_el = huff_tree->root[1];
+	
 	//Alloc a new node
     node *new_node_p, new_node = {0};
 	new_node_p = malloc(sizeof(*new_node_p));
@@ -160,13 +148,20 @@ int add_node(tree *huff_tree)
 	*new_node_p = new_node;
 
 	//Merge two nodes from the queue
-	new_node_p->count = first->count + second->count;
-	new_node_p->left = first;
-	new_node_p->right = second;
-	
+	new_node_p->count = first_el->count + second_el->count;
+	new_node_p->left = first_el;
+	new_node_p->right = second_el;
+
+	//Deleting from the queue the first and the second pointers
+	for (int index = 2; index < (huff_tree->leaf_qty); index++) {
+		huff_tree->root[index-2] = huff_tree->root[index];
+	}
+	huff_tree->root[huff_tree->leaf_qty-2] = NULL;
+	huff_tree->root[huff_tree->leaf_qty-1] = NULL;
+	huff_tree->leaf_qty -= 2;
+
 	//Insert a new node in the queue
 	int insrt_index = bin_search(huff_tree, new_node_p);
-
 	if (insrt_index < huff_tree->leaf_qty) {
 		for (int index = huff_tree->leaf_qty; index > insrt_index; index--) {
 			huff_tree->root[index] = huff_tree->root[index-1];
@@ -194,9 +189,9 @@ int add_node(tree *huff_tree)
  */
 int comp(const void *a, const void *b)
 {
-	node * const * p = (node * const *) a;
-	node * const * q = (node * const *) b;
-	return (*p)->count - (*q)->count;
+	const node **first_p = (const node **) a;
+	const node **second_p = (const node **) b;
+	return (*first_p)->count - (*second_p)->count;
 }
 
 /**
@@ -277,5 +272,5 @@ void print_tree(node *root_t)
 
 	print_tree(root_t->left);
 	print_tree(root_t->right);
-	printf("%c - %d\n", root_t->symb, root_t->count);
+	printf("%d - %li\n", root_t->symb, root_t->count);
 }

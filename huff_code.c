@@ -30,7 +30,6 @@ void huff_coding(node *root, char *code, char *huff_code[])
 		return;
 	}
 	
-	
 	char *left = (char *) alloca(sizeof(char) * MAXCHARS);
 	stpcpy(stpcpy(left, code), "0");
     huff_coding(root->left, left, huff_code);
@@ -38,8 +37,11 @@ void huff_coding(node *root, char *code, char *huff_code[])
 	char *right = (char *) alloca(sizeof(char) * MAXCHARS);
 	stpcpy(stpcpy(right, code), "1");
     huff_coding(root->right, right, huff_code);
-
-	if (root->symb) {
+	
+	if (root->left == NULL && root->right == NULL) {
+		if (code == NULL) {
+			return;
+		}
 		char *huff_code_p = (char *) malloc(strlen(code) * sizeof(char) + 1);
         strcpy(huff_code_p, code);
 		huff_code[(int) root->symb] = huff_code_p;
