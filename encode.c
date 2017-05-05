@@ -26,17 +26,12 @@
 int compress(global_opt *session, unsigned long *stat, char *code[])
 {
 	session->ofile_p = fopen(session->ofile, "wb");
-	int check;
 	
 	fwrite(stat, sizeof(unsigned long), MAXCHARS, session->ofile_p);
 
-	check = encode(session, code);
-	
-	if (check == 0) {
-		return 0;
-	} else {
-		return 1;
-	}
+	encode(session, code);
+
+	return 0;
 }
 
 /**
@@ -51,6 +46,8 @@ int compress(global_opt *session, unsigned long *stat, char *code[])
  */
 int encode(global_opt *session, char **code)
 {
+	size_t current_size;
+	
 	tools buff = {0};
 
 	buff.input = calloc(BUFF_SIZE, sizeof(unsigned char));
@@ -59,14 +56,13 @@ int encode(global_opt *session, char **code)
 
 	fseek(session->ifile_p, 0L, SEEK_SET);
 	
-	size_t current_size;
 	while ((current_size = fread(buff.input, sizeof(unsigned char), BUFF_SIZE, session->ifile_p))) {
 		for ( ; buff.i_count < current_size; buff.i_count++) {
-			bit_coding(&buff, session, code[(unsigned char ) buff.input[buff.i_count]]);
+			bit_coding(&buff, session, code[(unsigned char) buff.input[buff.i_count]]);
 		}
 		buff.i_count = 0;
 	}
-	
+
 	if (buff.bit_count < BITS_LEN || buff.o_count > 0) {
 		buff.output[buff.o_count++] = buff.bit;
 		fwrite(buff.output, sizeof(char), buff.o_count, session->ofile_p);
@@ -121,19 +117,13 @@ int bit_coding(tools *p_buff, global_opt *session, char *code)
  */
 int check_buff(tools *buff, global_opt *session)
 {
-	//check, write and cleam output buffer
-	if (buff->o_count < BUFF_SIZE) {
-		;
-	} else {
+	if (buff->o_count >= BUFF_SIZE) {
 		fwrite(buff->output, sizeof(char), buff->o_count, session->ofile_p);
 		memset(buff->output, 0, BUFF_SIZE);
 		buff->o_count = 0;
 	}
 
-	//check, write and clean raw bit
-	if (buff->bit_count > 0) {
-		;
-	} else {
+	if (buff->bit_count <= 0) {
 		buff->output[buff->o_count++] = buff->bit;
 		buff->bit = 0;
 		buff->bit_count = BITS_LEN;
